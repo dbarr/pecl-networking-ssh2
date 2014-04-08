@@ -193,7 +193,7 @@ PHP_FUNCTION(ssh2_sftp_symlink);
 PHP_FUNCTION(ssh2_sftp_readlink);
 PHP_FUNCTION(ssh2_sftp_realpath);
 
-LIBSSH2_SESSION *php_ssh2_session_connect(char *host, int port, zval *methods, zval *callbacks TSRMLS_DC);
+LIBSSH2_SESSION *php_ssh2_session_connect(char *host, int port, zval *methods, zval *callbacks, char *bindto, int bindport TSRMLS_DC);
 void php_ssh2_sftp_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC);
 php_url *php_ssh2_fopen_wraper_parse_path(	char *path, char *type, php_stream_context *context,
 											LIBSSH2_SESSION **psession, int *presource_id,

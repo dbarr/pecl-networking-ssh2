@@ -324,7 +324,7 @@ static int php_ssh2_set_method(LIBSSH2_SESSION *session, HashTable *ht, char *me
 /* {{{ php_ssh2_session_connect
  * Connect to an SSH server with requested methods
  */
-LIBSSH2_SESSION *php_ssh2_session_connect(char *host, int port, zval *methods, zval *callbacks TSRMLS_DC)
+LIBSSH2_SESSION *php_ssh2_session_connect(char *host, int port, zval *methods, zval *callbacks, char *bindto, int bindport TSRMLS_DC)
 {
 	LIBSSH2_SESSION *session;
 	int socket;
@@ -335,7 +335,7 @@ LIBSSH2_SESSION *php_ssh2_session_connect(char *host, int port, zval *methods, z
 	tv.tv_usec = 0;
 
 #if PHP_MAJOR_VERSION > 5 || (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION > 0)
-	socket = php_network_connect_socket_to_host(host, port, SOCK_STREAM, 0, &tv, NULL, NULL, NULL, 0 TSRMLS_CC);
+	socket = php_network_connect_socket_to_host(host, port, SOCK_STREAM, 0, &tv, NULL, NULL, bindto, bindport TSRMLS_CC);
 #elif PHP_MAJOR_VERSION == 5
 	socket = php_network_connect_socket_to_host(host, port, SOCK_STREAM, 0, &tv, NULL, NULL TSRMLS_CC);
 #else
@@ -441,7 +441,7 @@ LIBSSH2_SESSION *php_ssh2_session_connect(char *host, int port, zval *methods, z
 }
 /* }}} */
 
-/* {{{ proto resource ssh2_connect(string host[, int port[, array methods[, array callbacks]]])
+/* {{{ proto resource ssh2_connect(string host[, int port[, array methods[, array callbacks[, string bindto[, int bindport]]])
  * Establish a connection to a remote SSH server and return a resource on success, false on error
  */
 PHP_FUNCTION(ssh2_connect)
@@ -451,12 +451,15 @@ PHP_FUNCTION(ssh2_connect)
 	char *host;
 	long port = PHP_SSH2_DEFAULT_PORT;
 	int host_len;
+	char *bindto = NULL;
+	int bindto_len = 0;
+	long bindport = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|la!a!", &host, &host_len, &port, &methods, &callbacks) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|la!a!s!l", &host, &host_len, &port, &methods, &callbacks, &bindto, &bindto_len, &bindport) == FAILURE) {
 		return;
 	}
 
-	session = php_ssh2_session_connect(host, port, methods, callbacks TSRMLS_CC);
+	session = php_ssh2_session_connect(host, port, methods, callbacks, bindto, bindport TSRMLS_CC);
 	if (!session) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unable to connect to %s", host);
 		RETURN_FALSE;
