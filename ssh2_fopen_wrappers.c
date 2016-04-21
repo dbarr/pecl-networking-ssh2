@@ -392,7 +392,7 @@ php_url *php_ssh2_fopen_wraper_parse_path(	char *path, char *type, php_stream_co
 		return NULL;
 	}
 
-	session = php_ssh2_session_connect(resource->host, resource->port, methods, callbacks TSRMLS_CC);
+	session = php_ssh2_session_connect(resource->host, resource->port, methods, callbacks, "", 0 TSRMLS_CC);
 	if (!session) {
 		/* Unable to connect! */
 		php_url_free(resource);
